@@ -2,7 +2,11 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 
-
+/**
+ * Canoe class
+ * @author Joe Greive, Andy Bleich
+ *
+ */
 public class Canoe {
 
 	Node[][] data;
@@ -20,21 +24,21 @@ public class Canoe {
 		buildData(sizeSet);
 		buildTree();
 		
-		System.out.println("Brute Force");
-		recursiveBrute(root, 0);
+		//System.out.println("Brute Force");
+		//recursiveBrute(root, 0);
 		
 		path = 1;
-		System.out.println("\nDivide and Conquer");
-		divideAndConquer(root, 0);
+		//System.out.println("\nDivide and Conquer");
+		//divideAndConquer(root, 0);
 		
-		System.out.println("\nFastest path costs: "+lowestPathCost+"\n");
+		//System.out.println("\nFastest path costs: "+lowestPathCost+"\n");
 		
 		
 		System.out.println("\nDynamic");
 		dynamicIteration(data);
 		
-		System.out.println("\nAll available paths");
-		printOutSets();
+		//System.out.println("\nAll available paths");
+		//printOutSets();
 		
 		
 	}
@@ -96,7 +100,8 @@ public class Canoe {
 			}
 		}
 		
-		recursiveSetGeneration(root);
+		//Find all sets within the tree.
+		//recursiveSetGeneration(root);
 	}
 	
 		
