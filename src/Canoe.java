@@ -11,6 +11,7 @@ public class Canoe {
 	ArrayList<Stack<Node>> sets = new ArrayList<Stack<Node>>();
 	int sizeSet;
 	int path = 1;
+	int printCounter = 1;
 	int fastestPath = 0;
 	int lowestPathCost = 0;
 	
@@ -38,6 +39,10 @@ public class Canoe {
 		
 	}
 	
+	/**
+	 * Builds a random 2D array based off size
+	 * @param size the size of the 2D array.   size x size
+	 */
 	void buildData(int size){
 		Random r = new Random();
 		data = new Node[size][size];
@@ -54,6 +59,7 @@ public class Canoe {
 			}
 		}
 		
+		//Prints out the 2D array
 		for(int i = 0; i < data.length; i++){
 			for(int j = 1; j < data.length; j++){
 				System.out.print(data[i][j].cost+"\t");
@@ -63,7 +69,9 @@ public class Canoe {
 		}
 	}
 	
-	int printCounter = 1;
+	/**
+	 * Prints out all built sets
+	 */
 	void printOutSets(){
 		for(Stack<Node> s : sets){
 			System.out.print("Path "+printCounter++ +": ");
@@ -75,7 +83,10 @@ public class Canoe {
 	}
 	
 	
-	
+	/**
+	 * Turns the 2D array into a tree.
+	 * Asymptotic complexity = O(n * (n/2))
+	 */
 	void buildTree(){
 		root = data[0][1];
 		for(int i = 0; i < data.length; i++){
@@ -89,6 +100,11 @@ public class Canoe {
 	}
 	
 		
+	/**
+	 * Flips the stack to help with printing clarification
+	 * @param stack the Stack you want to flip
+	 * @return flipped stack
+	 */
 	Stack<Node> flipStack(Stack<Node> stack)
 	{
 		Stack<Node> returnStack = new Stack<Node>();
@@ -99,18 +115,11 @@ public class Canoe {
 	}
 	
 	
-	void recursivePrint(Node root){
-		if(root.left != null){
-			recursivePrint(root.left);
-		}
-		if(root.right != null){
-			recursivePrint(root.right);
-		}
-		
-		System.out.print(root.cost + " ");
-		
-	}
-	
+	/**
+	 * Generates all possible sets recursively using Depth First Search.
+	 * Asymptotic complexity = O(n)
+	 * @param root
+	 */
 	void recursiveSetGeneration(Node root){
 		
 		nodeStack.push(root);
@@ -133,9 +142,11 @@ public class Canoe {
 
 	/**
 	 * Brute force method to recursively find the cheapest path
-	 * O(2^(n-2))
-	 * @param root
-	 * @param currentCost
+	 * Anytime we go left, we must increment the value of our current cost
+	 * 
+	 * Asymptotic complexity = O(2^(n-2))
+	 * @param root The Node we are currently at
+	 * @param currentCost the current cost of the node.
 	 * @return
 	 */
 	int recursiveBrute(Node root, int currentCost){
@@ -160,6 +171,12 @@ public class Canoe {
 	}
 	
 	
+	/**
+	 * Recursively divides and conquers based of the minimum of the left and right node.
+	 * @param root The Node you wish to start with
+	 * @param currentCost the current cost of the node
+	 * @return the minimum value of the two nodes.
+	 */
 	int divideAndConquer(Node root, int currentCost){
 		if(root.isLeaf()){
 			System.out.println("Path "+ path++ +" cost: "+ (root.cost +currentCost));			
@@ -170,15 +187,11 @@ public class Canoe {
 	}
 	
 	
-	Node[] memo = new Node[sizeSet];
-	int dynamicize(Node root){
-		
-		return 0;
-	}
 	
 	
-	
-	
+	/*
+	 * ANDY PLEASE COMMENT WITH RUNTIME
+	 */
 	void dynamicIteration(Node[][] m) {
 
 		int maxLen = m.length;
@@ -231,17 +244,28 @@ public class Canoe {
 	
 	
 	
-	
+	/**
+	 * Private class used to turn our 2D array into a tree.
+	 * @author Joe Greive
+	 *
+	 */
 	private class Node {
 		private Node left;
 		private Node right;
 		public int cost;
 		
+		/**
+		 * Sets the cost of the current Node
+		 * @param cost cost of the Node
+		 */
 		private Node(int cost){
 			this.cost = cost;
 		}
 		
-		
+		/**
+		 * Checks if current node has any children
+		 * @return whether or not current Node has children
+		 */
 		private boolean isLeaf() {
 			return (left == null && right == null);
 		}
