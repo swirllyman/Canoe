@@ -21,32 +21,44 @@ public class Canoe {
 		buildData();
 		buildTree();
 		
-		bruteForce();
-		
-		setList.clear();
-		nodeStack.clear();
-		System.out.println("\nDynamic recursion");
-		dynamicRecursion(root, 0);
-		System.out.println("The cheapest path is: "+cheapestPrice);
-		printCheapestSet();
-		
-		setList.clear();
-		nodeStack.clear();
-		System.out.println("\nDivide and Conquer");
-		System.out.println("The cheapest path is: " +divideAndConquer(root, 0));
-		printDAndC(divideAndConquer(root, 0));
-		
+		//Dynamic iterative method. Works on all sizes.
 		System.out.println("\nDynamic iteration");
 		dynamicIteration(data);
 		
-		System.out.println("\nAll available paths");
-		printOutSets();
 		
+		/* Because all these methods rely on recursion,
+		 * we have limited the size to 10. Larger numbers cause
+		 * and immense amount of time and will usually result of 
+		 * out of memory exception*/
+		if(size <= 10){
+			//Print out all sets
+			System.out.println("\nAll available paths");
+			printOutSets();
+			
+			//brute force
+			bruteForce();
+			
+			//Divide and conquer
+			setList.clear();
+			nodeStack.clear();
+			System.out.println("\nDivide and Conquer");
+			System.out.println("The cheapest path is: " +divideAndConquer(root, 0));
+			printDAndC(divideAndConquer(root, 0));
+			
+			//Dynamic recursive method
+			System.out.println("\nDynamic recursion");
+			dynamicRecursion(root, 0);
+			System.out.println("The cheapest path is: "+cheapestPrice);
+			printCheapestSet();		
+		}
 		
+			
+			
 	}
 	
 	
 	/**
+	 * Iterates through all the sets and prints out the cheapest one.
 	 * O(n^2)
 	 * @param shortestPath
 	 */
@@ -66,8 +78,7 @@ public class Canoe {
 				cheapSet = s;
 			}
 		}
-		cheapSet = flipStack(cheapSet);
-		Stack<Node> temp = (Stack<Node>) cheapSet.clone();
+		Stack<Node> temp = flipStack(cheapSet);
 		while(temp.size() > 0){
 			System.out.print(temp.pop().cost+"\t");
 		}
@@ -108,7 +119,7 @@ public class Canoe {
 	
 	/**
 	 * Turns the info we need from the 2D array into a tree.
-	 * Asymptotic complexity = O(n * (n/2))
+	 * Asymptotic complexity = O(n * (n/2)) = O(n^2)
 	 */
 	void buildTree(){
 		root = data[0][1];
@@ -175,9 +186,12 @@ public class Canoe {
 		}		
 	}
 	
+	
+	/**
+	 * Flips a stack and prints it out.
+	 */
 	void printCheapestSet(){
-		Stack<Node> temp = (Stack<Node>) cheapestSet.clone();
-		temp = flipStack(temp);
+		Stack<Node> temp = flipStack(cheapestSet);
 		while(temp.size()>0){
 			System.out.print(temp.pop().cost+"\t");
 		}
@@ -211,16 +225,14 @@ public class Canoe {
 				cheapSet = s;
 			}
 		}
-		for(int i = 0; i < setSizes.length; i++){
-			System.out.println("Path "+(i+1)+" costs: "+setSizes[i]);
-		}
 		System.out.println("The cheapest price is: "+lowestPrice+" from path "+cheapestPath);
-		cheapSet = flipStack(cheapSet);
-		Stack<Node> temp = (Stack<Node>) cheapSet.clone();
+		Stack<Node> temp = flipStack(cheapSet);
 		while(temp.size() > 0){
 			System.out.print(temp.pop().cost+"\t");
 		}
 		System.out.println();
+		setList.clear();
+		nodeStack.clear();
 		
 	}
 
@@ -285,23 +297,30 @@ public class Canoe {
 	}
 	
 	
-	
-	
-	
-	
 	/**
 	 * Prints out all built sets
 	 */
 	void printOutSets(){
+		setList.clear();
+		generateSets(root);
 		int printCounter = 1;
+		int total = 0;
+		
 		for(Stack<Node> s : setList){
-			s = flipStack(s);
+			total = 0;
+			Stack<Node> temp = flipStack(s);
 			System.out.print("Path "+printCounter++ +": ");
-			while(s.size() > 0){
-				System.out.print(s.pop().cost + "\t");
+			while(temp.size() > 0){
+				int current = temp.pop().cost;
+				total += current;
+				System.out.print(current + "\t");
 			}
+			System.out.print(" = "+total);
 			System.out.println();
 		}
+		System.out.println();
+		setList.clear();
+		nodeStack.clear();
 	}
 	
 	/**
@@ -313,7 +332,8 @@ public class Canoe {
 	{
 		Stack<Node> returnStack = new Stack<Node>();
 		while(stack.size() > 0){
-			returnStack.push(stack.pop());
+			Node addNode = new Node(stack.pop().cost);
+			returnStack.push(addNode);
 		}
 		return returnStack;
 	}

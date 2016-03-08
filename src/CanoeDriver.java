@@ -13,7 +13,7 @@ public class CanoeDriver {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new Canoe(5);
+		new Canoe(7);
 
 	}
 
