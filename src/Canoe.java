@@ -24,21 +24,21 @@ public class Canoe {
 		buildData(sizeSet);
 		buildTree();
 		
-		//System.out.println("Brute Force");
-		//recursiveBrute(root, 0);
+		System.out.println("Brute Force");
+		recursiveBrute(root, 0);
 		
 		path = 1;
-		//System.out.println("\nDivide and Conquer");
-		//divideAndConquer(root, 0);
+		System.out.println("\nDivide and Conquer");
+		divideAndConquer(root, 0);
 		
-		//System.out.println("\nFastest path costs: "+lowestPathCost+"\n");
+		System.out.println("\nFastest path costs: "+lowestPathCost+"\n");
 		
 		
 		System.out.println("\nDynamic");
 		dynamicIteration(data);
 		
-		//System.out.println("\nAll available paths");
-		//printOutSets();
+		System.out.println("\nAll available paths");
+		printOutSets();
 		
 		
 	}
@@ -101,7 +101,7 @@ public class Canoe {
 		}
 		
 		//Find all sets within the tree.
-		//recursiveSetGeneration(root);
+		recursiveSetGeneration(root);
 	}
 	
 		
@@ -168,7 +168,6 @@ public class Canoe {
 				//fastestPath++;
 				lowestPathCost = root.cost + currentCost;
 			}
-			
 			return root.cost + currentCost;
 		}
 		else
@@ -186,8 +185,7 @@ public class Canoe {
 		if(root.isLeaf()){
 			System.out.println("Path "+ path++ +" cost: "+ (root.cost +currentCost));			
 			return root.cost + currentCost;
-		}
-		else
+		}else
 			return Math.min(divideAndConquer(root.left, currentCost + root.cost), divideAndConquer(root.right, currentCost));
 	}
 	
