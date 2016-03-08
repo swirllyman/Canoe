@@ -65,7 +65,7 @@ public class Canoe {
 		
 		//Prints out the 2D array
 		for(int i = 0; i < data.length; i++){
-			for(int j = 1; j < data.length; j++){
+			for(int j = 0; j < data.length; j++){
 				System.out.print(data[i][j].cost+"\t");
 			}
 			System.out.println();
@@ -101,7 +101,7 @@ public class Canoe {
 		}
 		
 		//Find all sets within the tree.
-		recursiveSetGeneration(root);
+		//recursiveSetGeneration(root);
 	}
 	
 		
@@ -118,65 +118,48 @@ public class Canoe {
 		}
 		return returnStack;
 	}
-	
-	
+
+
 	/**
-	 * Generates all possible sets recursively using Depth First Search.
-	 * Asymptotic complexity = O(n)
-	 * @param root
+	 * Brute force method to recursively find the cheapest path
+	 * Anytime we go left, we must increment the value of our current cost
+	 * 
+	 * Asymptotic complexity = O(2^n)
+	 * @param root The Node we are currently at
+	 * @param currentCost the current cost of the node.
+	 * @return
 	 */
-	void recursiveSetGeneration(Node root){
+	int recursiveBrute(Node root, int currentCost){
 		
 		nodeStack.push(root);
-		
 		if(root.left != null){
-			recursiveSetGeneration(root.left);
+			recursiveBrute(root.left, root.cost + currentCost);
 		}
 		if(root.right != null){
-			recursiveSetGeneration(root.right);
+			nodeStack.pop();
+			recursiveBrute(root.right, currentCost);
 		}
 		
 		if(root.isLeaf()){
 			Stack<Node> temp = (Stack<Node>) nodeStack.clone();
 			temp = flipStack(temp);
 			sets.add(temp);
-		}
-		
-		nodeStack.pop();
-	}
-
-	/**
-	 * Brute force method to recursively find the cheapest path
-	 * Anytime we go left, we must increment the value of our current cost
-	 * 
-	 * Asymptotic complexity = O(2^(n-2))
-	 * @param root The Node we are currently at
-	 * @param currentCost the current cost of the node.
-	 * @return
-	 */
-	int recursiveBrute(Node root, int currentCost){
-		if(root.left != null){
-			recursiveBrute(root.left, root.cost + currentCost);
-		}
-		if(root.right != null){
-			recursiveBrute(root.right, currentCost);
-		}
-		if(root.isLeaf()){
-			System.out.println("Path "+ path++ +" cost: "+ (root.cost +currentCost));
+			nodeStack.pop();
+			System.out.println("Path "+ path++ +" costs: "+ (root.cost +currentCost));
 			
 			if(root.cost + currentCost < lowestPathCost || lowestPathCost == 0){
-				//fastestPath++;
 				lowestPathCost = root.cost + currentCost;
 			}
 			return root.cost + currentCost;
-		}
-		else
-			return -1;
+		}		
+		return -1;
 	}
 	
 	
 	/**
 	 * Recursively divides and conquers based of the minimum of the left and right node.
+	 * 
+	 * Asymptotic complexity O(2^n)
 	 * @param root The Node you wish to start with
 	 * @param currentCost the current cost of the node
 	 * @return the minimum value of the two nodes.
