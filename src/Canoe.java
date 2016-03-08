@@ -13,6 +13,7 @@ public class Canoe {
 	Node root;
 	Stack<Node> nodeStack = new Stack<Node>();
 	ArrayList<Stack<Node>> setList = new ArrayList<Stack<Node>>();
+	Stack<Node> cheapestSet;
 	int totalSize;
 	int cheapestPrice = 0;
 	
@@ -55,37 +56,7 @@ public class Canoe {
 			
 			
 	}
-	
-	
-	/**
-	 * Iterates through all the sets and prints out the cheapest one.
-	 * O(n^2)
-	 * @param shortestPath
-	 */
-	
-	void printDAndC(int shortestPath){
-		generateSets(root);
-		int lowestPrice = 0;
-		Stack<Node> cheapSet = new Stack<Node>();
-		for(Stack<Node> s : setList){
-			Stack<Node> temp = (Stack<Node>) s.clone();
-			int total = 0;
-			while(temp.size() > 0){
-				total += temp.pop().cost;
-			}
-			if(lowestPrice == 0 || lowestPrice > total){
-				lowestPrice = total;
-				cheapSet = s;
-			}
-		}
-		Stack<Node> temp = flipStack(cheapSet);
-		while(temp.size() > 0){
-			System.out.print(temp.pop().cost+"\t");
-		}
-		System.out.println();
 		
-	}
-	
 	/**
 	 * Builds a random 2D array based off size
 	 * @param size the size of the 2D array.   size x size
@@ -163,7 +134,6 @@ public class Canoe {
 	 * @param root The Node we are currently at
 	 * @param currentCost the current cost of the node.
 	 */
-	Stack<Node> cheapestSet;
 	void dynamicRecursion(Node root, int currentCost){
 	
 		nodeStack.push(root);
@@ -184,20 +154,48 @@ public class Canoe {
 				cheapestPrice = root.cost + currentCost;
 			}
 		}		
+	}	
+	
+	/**
+	 * Recursively divides and conquers based of the minimum of the left and right node. O(n)
+	 * @param root The Node you wish to start with
+	 * @param currentCost the current cost of the node
+	 * @return the minimum value of the two nodes.
+	 */
+	int divideAndConquer(Node root, int currentCost){
+		if(root.isLeaf())		return root.cost + currentCost; 
+		else					return Math.min(divideAndConquer(root.left, currentCost + root.cost), 
+												divideAndConquer(root.right, currentCost));
 	}
 	
 	
 	/**
-	 * Flips a stack and prints it out.
+	 * Iterates through all the sets and prints out the cheapest one.
+	 * O(n^2)
+	 * @param shortestPath
 	 */
-	void printCheapestSet(){
-		Stack<Node> temp = flipStack(cheapestSet);
-		while(temp.size()>0){
+	void printDAndC(int shortestPath){
+		generateSets(root);
+		int lowestPrice = 0;
+		Stack<Node> cheapSet = new Stack<Node>();
+		for(Stack<Node> s : setList){
+			Stack<Node> temp = (Stack<Node>) s.clone();
+			int total = 0;
+			while(temp.size() > 0){
+				total += temp.pop().cost;
+			}
+			if(lowestPrice == 0 || lowestPrice > total){
+				lowestPrice = total;
+				cheapSet = s;
+			}
+		}
+		Stack<Node> temp = flipStack(cheapSet);
+		while(temp.size() > 0){
 			System.out.print(temp.pop().cost+"\t");
 		}
 		System.out.println();
+		
 	}
-	
 	
 	
 	
@@ -234,26 +232,7 @@ public class Canoe {
 		setList.clear();
 		nodeStack.clear();
 		
-	}
-
-		
-	
-	/**
-	 * Recursively divides and conquers based of the minimum of the left and right node. O(n)
-	 * @param root The Node you wish to start with
-	 * @param currentCost the current cost of the node
-	 * @return the minimum value of the two nodes.
-	 */
-	
-	int divideAndConquer(Node root, int currentCost){
-		if(root.isLeaf())		return root.cost + currentCost; 
-		else					return Math.min(divideAndConquer(root.left, currentCost + root.cost), 
-												divideAndConquer(root.right, currentCost));
-		
-	}
-	
-	
-	
+	}	
 	
 	/*
 	 * ANDY PLEASE COMMENT WITH RUNTIME
@@ -321,6 +300,17 @@ public class Canoe {
 		System.out.println();
 		setList.clear();
 		nodeStack.clear();
+	}
+	
+	/**
+	 * Flips a stack and prints it out.
+	 */
+	void printCheapestSet(){
+		Stack<Node> temp = flipStack(cheapestSet);
+		while(temp.size()>0){
+			System.out.print(temp.pop().cost+"\t");
+		}
+		System.out.println();
 	}
 	
 	/**
