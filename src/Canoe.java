@@ -12,29 +12,31 @@ public class Canoe {
 	Node[][] data;
 	Node root;
 	Stack<Node> nodeStack = new Stack<Node>();
-	ArrayList<Stack<Node>> sets = new ArrayList<Stack<Node>>();
-	int sizeSet;
-	int path = 1;
-	int printCounter = 1;
-	int fastestPath = 0;
-	int lowestPathCost = 0;
+	ArrayList<Stack<Node>> setList = new ArrayList<Stack<Node>>();
+	int totalSize;
+	int cheapestPrice = 0;
 	
 	public Canoe(int size){
-		sizeSet = size;
-		buildData(sizeSet);
+		totalSize = size;
+		buildData();
 		buildTree();
 		
-		System.out.println("Brute Force");
-		recursiveBrute(root, 0);
+		bruteForce();
 		
-		path = 1;
+		setList.clear();
+		nodeStack.clear();
+		System.out.println("\nDynamic recursion");
+		dynamicRecursion(root, 0);
+		System.out.println("The cheapest path is: "+cheapestPrice);
+		printCheapestSet();
+		
+		setList.clear();
+		nodeStack.clear();
 		System.out.println("\nDivide and Conquer");
-		divideAndConquer(root, 0);
+		System.out.println("The cheapest path is: " +divideAndConquer(root, 0));
+		printDAndC(divideAndConquer(root, 0));
 		
-		System.out.println("\nFastest path costs: "+lowestPathCost+"\n");
-		
-		
-		System.out.println("\nDynamic");
+		System.out.println("\nDynamic iteration");
 		dynamicIteration(data);
 		
 		System.out.println("\nAll available paths");
@@ -43,15 +45,45 @@ public class Canoe {
 		
 	}
 	
+	
+	/**
+	 * O(n^2)
+	 * @param shortestPath
+	 */
+	
+	void printDAndC(int shortestPath){
+		generateSets(root);
+		int lowestPrice = 0;
+		Stack<Node> cheapSet = new Stack<Node>();
+		for(Stack<Node> s : setList){
+			Stack<Node> temp = (Stack<Node>) s.clone();
+			int total = 0;
+			while(temp.size() > 0){
+				total += temp.pop().cost;
+			}
+			if(lowestPrice == 0 || lowestPrice > total){
+				lowestPrice = total;
+				cheapSet = s;
+			}
+		}
+		cheapSet = flipStack(cheapSet);
+		Stack<Node> temp = (Stack<Node>) cheapSet.clone();
+		while(temp.size() > 0){
+			System.out.print(temp.pop().cost+"\t");
+		}
+		System.out.println();
+		
+	}
+	
 	/**
 	 * Builds a random 2D array based off size
 	 * @param size the size of the 2D array.   size x size
 	 */
-	void buildData(int size){
+	void buildData(){
 		Random r = new Random();
-		data = new Node[size][size];
-		for(int i = 0; i < data.length; i++){
-			for(int j = 0; j < data.length; j++){
+		data = new Node[totalSize][totalSize];
+		for(int i = 0; i < totalSize; i++){
+			for(int j = 0; j < totalSize; j++){
 				data[i][j] = new Node(0);
 				if(j == i){
 					data[i][j].cost = 0;
@@ -64,8 +96,8 @@ public class Canoe {
 		}
 		
 		//Prints out the 2D array
-		for(int i = 0; i < data.length; i++){
-			for(int j = 0; j < data.length; j++){
+		for(int i = 0; i < totalSize; i++){
+			for(int j = 0; j < totalSize; j++){
 				System.out.print(data[i][j].cost+"\t");
 			}
 			System.out.println();
@@ -73,103 +105,139 @@ public class Canoe {
 		}
 	}
 	
-	/**
-	 * Prints out all built sets
-	 */
-	void printOutSets(){
-		for(Stack<Node> s : sets){
-			System.out.print("Path "+printCounter++ +": ");
-			while(s.size() > 0){
-				System.out.print(s.pop().cost + "\t");
-			}
-			System.out.println();
-		}
-	}
-	
 	
 	/**
-	 * Turns the 2D array into a tree.
+	 * Turns the info we need from the 2D array into a tree.
 	 * Asymptotic complexity = O(n * (n/2))
 	 */
 	void buildTree(){
 		root = data[0][1];
-		for(int i = 0; i < data.length; i++){
-			for(int j = i+1; j < data.length-1; j++){
+		for(int i = 0; i < totalSize; i++){
+			for(int j = i+1; j < totalSize-1; j++){
 				data[i][j].right = data[i][j+1];
 				data[i][j].left = data[j][j+1];
 			}
 		}
-		
-		//Find all sets within the tree.
-		//recursiveSetGeneration(root);
 	}
 	
-		
+	
+	
 	/**
-	 * Flips the stack to help with printing clarification
-	 * @param stack the Stack you want to flip
-	 * @return flipped stack
+	 * Generate all sets based on DFS.  O(n)
+	 * @param root initial root
 	 */
-	Stack<Node> flipStack(Stack<Node> stack)
-	{
-		Stack<Node> returnStack = new Stack<Node>();
-		while(stack.size() > 0){
-			returnStack.push(stack.pop());
-		}
-		return returnStack;
-	}
-
-
-	/**
-	 * Brute force method to recursively find the cheapest path
-	 * Anytime we go left, we must increment the value of our current cost
-	 * 
-	 * Asymptotic complexity = O(2^n)
-	 * @param root The Node we are currently at
-	 * @param currentCost the current cost of the node.
-	 * @return
-	 */
-	int recursiveBrute(Node root, int currentCost){
+	void generateSets(Node root){
 		
 		nodeStack.push(root);
+		if(root.left != null){					//if left recur left
+			generateSets(root.left);
+		}
+		if(root.right != null){					//if right, remove current Node and recur right
+			nodeStack.pop();
+			generateSets(root.right);
+		}
+		if(root.isLeaf()){						//if leaf node, make new set and add to list, then remove node
+			Stack<Node> temp = (Stack<Node>) nodeStack.clone();
+			setList.add(temp);
+			nodeStack.pop();
+		}		
+	}
+	
+	
+	
+	
+	/**
+	 * Dynamic method to recursively find the cheapest path
+	 * Anytime we go left, we must increment the value of our current cost. O(n)
+	 * @param root The Node we are currently at
+	 * @param currentCost the current cost of the node.
+	 */
+	Stack<Node> cheapestSet;
+	void dynamicRecursion(Node root, int currentCost){
+	
+		nodeStack.push(root);
 		if(root.left != null){
-			recursiveBrute(root.left, root.cost + currentCost);
+			dynamicRecursion(root.left, root.cost + currentCost);
 		}
 		if(root.right != null){
 			nodeStack.pop();
-			recursiveBrute(root.right, currentCost);
+			dynamicRecursion(root.right, currentCost);
 		}
 		
 		if(root.isLeaf()){
 			Stack<Node> temp = (Stack<Node>) nodeStack.clone();
-			temp = flipStack(temp);
-			sets.add(temp);
+			setList.add(temp);
 			nodeStack.pop();
-			System.out.println("Path "+ path++ +" costs: "+ (root.cost +currentCost));
-			
-			if(root.cost + currentCost < lowestPathCost || lowestPathCost == 0){
-				lowestPathCost = root.cost + currentCost;
+			if(root.cost + currentCost < cheapestPrice || cheapestPrice == 0){
+				cheapestSet = temp;
+				cheapestPrice = root.cost + currentCost;
 			}
-			return root.cost + currentCost;
 		}		
-		return -1;
+	}
+	
+	void printCheapestSet(){
+		Stack<Node> temp = (Stack<Node>) cheapestSet.clone();
+		temp = flipStack(temp);
+		while(temp.size()>0){
+			System.out.print(temp.pop().cost+"\t");
+		}
+		System.out.println();
 	}
 	
 	
+	
+	
 	/**
-	 * Recursively divides and conquers based of the minimum of the left and right node.
-	 * 
-	 * Asymptotic complexity O(2^n)
+	 * Brute for implementation for finding the cheapest path. O(n^2 + n)
+	 */
+	void bruteForce(){
+		System.out.println("Brute Force");
+		generateSets(root);
+		int[] setSizes = new int[setList.size()];
+		int counter = 0;
+		int lowestPrice = 0;
+		int cheapestPath = 1;
+		Stack<Node> cheapSet = new Stack<Node>();
+		for(Stack<Node> s : setList){
+			Stack<Node> temp = (Stack<Node>) s.clone();
+			int total = 0;
+			while(temp.size() > 0){
+				total += temp.pop().cost;
+			}
+			setSizes[counter++] = total;
+			if(lowestPrice == 0 || lowestPrice > total){
+				cheapestPath = counter;
+				lowestPrice = total;
+				cheapSet = s;
+			}
+		}
+		for(int i = 0; i < setSizes.length; i++){
+			System.out.println("Path "+(i+1)+" costs: "+setSizes[i]);
+		}
+		System.out.println("The cheapest price is: "+lowestPrice+" from path "+cheapestPath);
+		cheapSet = flipStack(cheapSet);
+		Stack<Node> temp = (Stack<Node>) cheapSet.clone();
+		while(temp.size() > 0){
+			System.out.print(temp.pop().cost+"\t");
+		}
+		System.out.println();
+		
+	}
+
+		
+	
+	/**
+	 * Recursively divides and conquers based of the minimum of the left and right node. O(n)
 	 * @param root The Node you wish to start with
 	 * @param currentCost the current cost of the node
 	 * @return the minimum value of the two nodes.
 	 */
+	
 	int divideAndConquer(Node root, int currentCost){
-		if(root.isLeaf()){
-			System.out.println("Path "+ path++ +" cost: "+ (root.cost +currentCost));			
-			return root.cost + currentCost;
-		}else
-			return Math.min(divideAndConquer(root.left, currentCost + root.cost), divideAndConquer(root.right, currentCost));
+		if(root.isLeaf())		return root.cost + currentCost; 
+		else					return Math.min(divideAndConquer(root.left, currentCost + root.cost), 
+												divideAndConquer(root.right, currentCost));
+		
 	}
 	
 	
@@ -221,10 +289,34 @@ public class Canoe {
 	
 	
 	
+	/**
+	 * Prints out all built sets
+	 */
+	void printOutSets(){
+		int printCounter = 1;
+		for(Stack<Node> s : setList){
+			s = flipStack(s);
+			System.out.print("Path "+printCounter++ +": ");
+			while(s.size() > 0){
+				System.out.print(s.pop().cost + "\t");
+			}
+			System.out.println();
+		}
+	}
 	
-	
-	
-	
+	/**
+	 * Flips the stack to help with printing clarification
+	 * @param stack the Stack you want to flip
+	 * @return flipped stack
+	 */
+	Stack<Node> flipStack(Stack<Node> stack)
+	{
+		Stack<Node> returnStack = new Stack<Node>();
+		while(stack.size() > 0){
+			returnStack.push(stack.pop());
+		}
+		return returnStack;
+	}
 	
 	
 	
