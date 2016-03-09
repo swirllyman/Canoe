@@ -43,23 +43,30 @@ public class Canoe {
 		
 		
 		// Because all these methods rely on recursion,
-		// we have limited the size to 10. Larger numbers cause
+		// we have limited the size to 20. Larger numbers cause
 		// and immense amount of time and can result in 
 		// out of memory exception*/
-		if(size <= 10){
+		if(size <= 20){
 			//Print out all sets
 			System.out.println("\nAll available paths");
 			printOutSets();
 			
 			//brute force
+			long startTime = System.currentTimeMillis();
 			bruteForce();
+			long finishTime = System.currentTimeMillis();
+			System.out.print("Brute Force run time in millis: " + (finishTime - startTime));
+			System.out.println();
 			
 			//Divide and conquer
 			setList.clear();
 			nodeStack.clear();
 			System.out.println("\nDivide and Conquer");
+			startTime = System.currentTimeMillis();
 			System.out.println("The cheapest path is: " +divideAndConquer(root, 0));
 			printDAndC();
+			finishTime = System.currentTimeMillis();
+			System.out.println("Divide and Conquer run time in millis: " +(finishTime - startTime));
 			
 			//Dynamic recursive method
 			System.out.println("\nDynamic recursion");
