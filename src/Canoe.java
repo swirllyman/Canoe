@@ -32,29 +32,30 @@ public class Canoe {
 	 * @author Joe Greive
 	 */
 	public Canoe(int size){
+		printArray();
 		totalSize = size;
 		buildData();
+		long startTime = System.currentTimeMillis();
 		buildTree();
-		
-		//Dynamic iterative method. Works on all sizes.
-		System.out.println("\nDynamic iteration");
-		dynamicIteration(data);
-		
-		
+		long finishTime = System.currentTimeMillis();
+		System.out.println("Total size: "+totalSize);
+		System.out.print("Tree buildling time: " + (finishTime - startTime));
+		System.out.println();		
 		
 		// Because all these methods rely on recursion,
 		// we have limited the size to 20. Larger numbers cause
 		// and immense amount of time and can result in 
 		// out of memory exception*/
 		if(size <= 20){
+			printArray();
 			//Print out all sets
 			System.out.println("\nAll available paths");
 			printOutSets();
 			
 			//brute force
-			long startTime = System.currentTimeMillis();
+			startTime = System.currentTimeMillis();
 			bruteForce();
-			long finishTime = System.currentTimeMillis();
+			finishTime = System.currentTimeMillis();
 			System.out.print("Brute Force run time in millis: " + (finishTime - startTime));
 			System.out.println();
 			
@@ -74,6 +75,13 @@ public class Canoe {
 			System.out.println("The cheapest path is: "+cheapestPrice);
 			printCheapestSet();		
 		}
+		
+		
+		//Dynamic iterative method. Works on all sizes.
+		System.out.println("\nDynamic iteration");
+		dynamicIteration(data);
+		
+		System.out.println("\n");
 	}
 	
 		
@@ -98,7 +106,9 @@ public class Canoe {
 				}
 			}
 		}
-		
+	}
+	
+	void printArray(){
 		//Prints out the 2D array
 		for(int i = 0; i < totalSize; i++){
 			for(int j = 0; j < totalSize; j++){
